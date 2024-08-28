@@ -1,95 +1,67 @@
-import Image from "next/image";
-import styles from "./page.module.css";
 
-export default function Home() {
-  return (
-    <main className={styles.main}>
-      <div className={styles.description}>
-        <p>
-          Get started by editing&nbsp;
-          <code className={styles.code}>src/app/page.tsx</code>
-        </p>
-        <div>
-          <a
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{" "}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className={styles.vercelLogo}
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
-        </div>
+
+// src/app/page.tsx
+
+// In Next.js, we need to add this line to the top of our file to declare a 
+// boundary between Server and Client Component modules. 
+"use client";
+
+// import useState so that we can update the response we get from the API
+import { useState } from "react";
+// import axios so we can easily send the user's input to our server
+import axios from "axios";
+import "./globals.css";
+
+const App = () => {
+// We store and update the responses we get from the API with this state
+// I've added a default value to the 'response' state that we should see 
+// when the page initially loads
+  const [response, setResponse] = useState<string>("Hi there! Let's do a case interview!");
+// We also store the input we get from the user in the 'value' state and
+// update it everytime the user types into the input field we have added below
+  const [value, setValue] = useState<string>("");
+
+// We use this function in the newly added 'input' in the return statement.
+// Each time the user types into the input, this function ensures that the
+// 'value' state is updated
+// We also add a type to the event that we pass in
+  const onChange = (e: React.ChangeEvent<HTMLInputElement>) =>
+    setValue(e.target.value);
+
+// This function runs when the user presses the button we have added below
+// This function takes the contents of 'value' (the input from the user) 
+// and then sends this value to our server, which then sends a new request
+// to the API
+// The function then waits for the new response and updates the 'response'
+// value which we then display on the page
+  const handleSubmit = async () => {
+    const response = (await axios.post("/chat", { question: value })).data
+      .choices[0].message.content;
+    setResponse(response);
+  };
+
+// In our return statement, we add an input field so that the user can ask 
+// questions to the API.
+// We also add a button so that the user can submit their question which then
+// updates the response from the API
+// We show the updated response on our page
+return (
+    <div className="container">
+      <div>
+        <input
+          type="text"
+          value={value}
+          onChange={onChange}
+        ></input>
       </div>
-
-      <div className={styles.center}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
+      <div>
+        <button onClick={handleSubmit}>Click me for answers!</button>
       </div>
-
-      <div className={styles.grid}>
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Docs <span>-&gt;</span>
-          </h2>
-          <p>Find in-depth information about Next.js features and API.</p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Learn <span>-&gt;</span>
-          </h2>
-          <p>Learn about Next.js in an interactive course with&nbsp;quizzes!</p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Templates <span>-&gt;</span>
-          </h2>
-          <p>Explore starter templates for Next.js.</p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Deploy <span>-&gt;</span>
-          </h2>
-          <p>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
+      <div>
+        <p>Chatbot: {response}</p>
       </div>
-    </main>
+    </div>
   );
-}
+};
+
+export default App;
